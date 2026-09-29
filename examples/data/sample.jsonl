@@ -1,0 +1,10 @@
+{"id": "q-refund-window", "input": "How long do I have to request a refund?", "reference": "Refunds are issued within 30 days of purchase."}
+{"id": "q-refund-condition", "input": "What condition must items be in for a refund?", "reference": "Items must be unopened and include original packaging."}
+{"id": "q-refund-how", "input": "Where do I submit a refund request?", "reference": "Refund requests are submitted through the account dashboard."}
+{"id": "q-ship-standard", "input": "How long does standard shipping take?", "reference": "Standard shipping takes 3 to 5 business days within the country."}
+{"id": "q-ship-express", "input": "How fast is express shipping?", "reference": "Express shipping takes 1 to 2 business days and costs extra."}
+{"id": "q-ship-intl", "input": "Do you ship internationally?", "reference": "International shipping is available to 40 countries."}
+{"id": "q-warranty-length", "input": "How long is the hardware warranty?", "reference": "All hardware carries a 2 year warranty covering manufacturing defects."}
+{"id": "q-warranty-excluded", "input": "What does the warranty not cover?", "reference": "The warranty does not cover water damage or accidental drops."}
+{"id": "q-support-email", "input": "How do I contact support by email?", "reference": "Support is available via email at help@example.com, 24/7."}
+{"id": "q-support-hours", "input": "What are the phone support hours?", "reference": "Phone support runs on weekdays from 9am to 6pm."}

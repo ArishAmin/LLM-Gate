@@ -1,0 +1,45 @@
+[project]
+name = "llm-gate"
+version = "0.1.0"
+description = "CI gate for LLM quality — score RAG/prompt pipelines, diff runs, catch regressions before prod."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Arish Amin" }]
+keywords = ["llm", "evals", "rag", "regression-testing", "llm-as-judge", "ci"]
+dependencies = [
+    "pydantic>=2.7",
+    "pyyaml>=6.0",
+    "typer>=0.12",
+    "rich>=13.7",
+    "jinja2>=3.1",
+]
+
+[project.optional-dependencies]
+judge = ["litellm>=1.40"]
+analytics = ["duckdb>=1.0"]
+dev = ["pytest>=8", "ruff>=0.5", "mypy>=1.10", "pre-commit>=3.7"]
+
+[project.scripts]
+llm-gate = "llm_gate.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/llm_gate"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

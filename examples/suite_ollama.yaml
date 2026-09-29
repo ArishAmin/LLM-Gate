@@ -1,0 +1,37 @@
+# llm-gate suite — 100% LOCAL judge via Ollama. No API key, no internet.
+#
+# Setup:
+#   1. install Ollama:            https://ollama.com
+#   2. pull a judge model:        ollama pull llama3.2        (3B, runs on modest laptops)
+#   3. pip install -e ".[judge]"
+#   4. llm-gate run examples/suite_ollama.yaml
+#
+# Works with any Ollama model you have pulled (llama3.2, qwen2.5, mistral, ...).
+# For LM Studio / vLLM / llama.cpp / LocalAI instead, use the openai/ prefix:
+#   judge:
+#     model: openai/my-local-model
+#     api_base: http://localhost:1234/v1     # LM Studio default
+name: demo-support-rag
+
+dataset:
+  path: data/sample.jsonl
+
+target:
+  callable: demo_target:answer
+
+metrics:
+  - name: f1
+    threshold: 0.25
+  - name: context_recall
+    threshold: 0.5
+  - name: faithfulness
+    threshold: 0.5
+  - name: answer_relevance
+    threshold: 0.5
+
+judge:
+  model: ollama_chat/llama3.2
+  api_base: http://localhost:11434     # default Ollama daemon; omit if standard
+  temperature: 0.0
+  samples: 1                           # small local model: 1 sample keeps it fast
+  seed: 42

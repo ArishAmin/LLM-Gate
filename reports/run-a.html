@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>llm-gate — demo-support-rag (f6b54142ecd0)</title>
+<style>
+  :root {
+    --bg: #080b11; --bg2: #0d1219;
+    --panel: #11171f; --panel2: #151d27; --elev: #1a232e;
+    --line: #20293540; --line2: #2a3542;
+    --txt: #e7eef5; --mut: #8695a4; --mut2: #5c6a78;
+    --green: #34d399; --red: #fb7185; --amber: #fbbf24;
+    --acc: #818cf8; --acc2: #22d3ee;
+    --shadow: 0 8px 30px -12px #000c;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #1b274033, transparent 60%),
+      radial-gradient(900px 500px at -10% 0%, #22d3ee14, transparent 55%),
+      var(--bg);
+    color: var(--txt);
+    font: 14px/1.6 -apple-system, "Segoe UI", Inter, system-ui, sans-serif;
+    margin: 0; padding: 40px 24px 64px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; }
+
+  /* ── brand header ─────────────────────────── */
+  .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+  .mark {
+    width: 34px; height: 34px; border-radius: 9px; flex: none;
+    background: linear-gradient(135deg, var(--acc), var(--acc2));
+    display: grid; place-items: center; box-shadow: 0 4px 14px -4px #818cf8aa;
+  }
+  .mark svg { width: 19px; height: 19px; }
+  .brand .name { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+  .brand .name span { color: var(--acc2); }
+  .brand .tag { color: var(--mut2); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -.02em; margin: 18px 0 8px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+  .chip {
+    background: var(--panel); border: 1px solid var(--line2); border-radius: 999px;
+    padding: 3px 11px; font-size: 12px; color: var(--mut);
+  }
+  .chip code { font-family: var(--mono); color: var(--acc2); font-size: 11.5px; }
+  .chip b { color: var(--txt); font-weight: 600; }
+
+  /* ── gate banner ──────────────────────────── */
+  .banner {
+    position: relative; margin: 22px 0; border-radius: 14px; padding: 16px 20px 16px 18px;
+    display: flex; align-items: center; gap: 14px; overflow: hidden;
+    border: 1px solid var(--line2); background: var(--panel);
+  }
+  .banner::before { content: ""; position: absolute; inset: 0 0 0 0; width: 4px; }
+  .banner .ico { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; flex: none; }
+  .banner .ico svg { width: 21px; height: 21px; }
+  .banner .t { font-size: 16px; font-weight: 700; letter-spacing: -.01em; }
+  .banner .s { font-size: 12.5px; color: var(--mut); margin-top: 1px; }
+  .banner.ok::before { background: linear-gradient(var(--green), var(--green)); }
+  .banner.ok .ico { background: #34d3991f; color: var(--green); }
+  .banner.ok .t { color: var(--green); }
+  .banner.bad::before { background: linear-gradient(var(--red), var(--amber)); }
+  .banner.bad .ico { background: #fb71851f; color: var(--red); }
+  .banner.bad .t { color: var(--red); }
+
+  /* ── hero: ring + stat cards ──────────────── */
+  .hero { display: grid; grid-template-columns: 210px 1fr; gap: 16px; margin: 22px 0; }
+  @media (max-width: 720px) { .hero { grid-template-columns: 1fr; } }
+  .panel {
+    background: linear-gradient(180deg, var(--panel2), var(--panel));
+    border: 1px solid var(--line2); border-radius: 16px; padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .ring-panel { display: grid; place-items: center; text-align: center; }
+  .ring-wrap { position: relative; width: 150px; height: 150px; }
+  .ring-wrap svg { width: 150px; height: 150px; transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: #ffffff10; stroke-width: 11; }
+  .ring-fg { fill: none; stroke-width: 11; stroke-linecap: round; }
+  .ring-center {
+    position: absolute; inset: 0; display: grid; place-items: center; align-content: center;
+  }
+  .ring-center .pct { font-size: 32px; font-weight: 750; letter-spacing: -.03em; line-height: 1; }
+  .ring-center .lbl { font-size: 10.5px; color: var(--mut2); text-transform: uppercase; letter-spacing: .1em; margin-top: 6px; }
+
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  @media (max-width: 480px) { .stats { grid-template-columns: 1fr; } }
+  .stat { background: var(--elev); border: 1px solid var(--line2); border-radius: 13px; padding: 14px 16px; }
+  .stat .k { font-size: 11px; color: var(--mut2); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 7px; }
+  .stat .v { font-size: 23px; font-weight: 700; letter-spacing: -.02em; }
+  .stat .v small { font-size: 13px; font-weight: 500; color: var(--mut); }
+  .stat .v.mono { font-family: var(--mono); }
+
+  /* ── metric cards ─────────────────────────── */
+  .mgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 4px; }
+  .mcard { background: var(--elev); border: 1px solid var(--line2); border-radius: 13px; padding: 14px 16px; }
+  .mcard .mk { font-size: 12px; color: var(--mut); font-family: var(--mono); margin-bottom: 10px; }
+  .mcard .mv { font-size: 21px; font-weight: 700; letter-spacing: -.02em; margin-bottom: 9px; }
+  .bar { height: 6px; border-radius: 4px; background: #ffffff0d; overflow: hidden; }
+  .bar > i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--acc), var(--acc2)); }
+
+  /* ── section titles ───────────────────────── */
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--mut2);
+       margin: 34px 0 12px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+  h2::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--line2), transparent); }
+
+  /* ── tables ───────────────────────────────── */
+  table { border-collapse: separate; border-spacing: 0; width: 100%;
+          background: var(--panel); border: 1px solid var(--line2); border-radius: 14px; overflow: hidden; }
+  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); font-size: 13px; }
+  th { color: var(--mut2); font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; font-weight: 700;
+       background: #ffffff05; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #ffffff06; }
+  td code, .mono { font-family: var(--mono); font-size: 12.5px; }
+  .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: .03em; }
+  .pill.pass { background: #34d3991c; color: var(--green); border: 1px solid #34d39940; }
+  .pill.fail { background: #fb71851c; color: var(--red); border: 1px solid #fb718540; }
+  .pill.fix  { background: #fbbf241c; color: var(--amber); border: 1px solid #fbbf2440; }
+  .pill.mut  { background: #ffffff0d; color: var(--mut); border: 1px solid var(--line2); }
+  .pos { color: var(--green); font-weight: 600; }
+  .neg { color: var(--red); font-weight: 600; }
+  .flat { color: var(--mut); }
+
+  /* ── CI bar visualization ─────────────────── */
+  .ci { position: relative; height: 22px; min-width: 150px; background: #ffffff08; border-radius: 5px; }
+  .ci .zero { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--line2); }
+  .ci .range { position: absolute; top: 8px; height: 6px; border-radius: 3px; background: #8695a455; }
+  .ci .pt { position: absolute; top: 4px; width: 3px; height: 14px; border-radius: 2px; transform: translateX(-1.5px); }
+  .ci .pt.pos { background: var(--green); } .ci .pt.neg { background: var(--red); } .ci .pt.flat { background: var(--mut); }
+
+  /* ── score chips in per-example table ─────── */
+  .scores { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+  .sc { font-family: var(--mono); font-size: 11px; padding: 2px 8px; border-radius: 6px;
+        background: #ffffff08; border: 1px solid var(--line2); color: var(--mut); white-space: nowrap; }
+  .sc b { color: var(--txt); font-weight: 600; }
+  .out { max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--mut); }
+
+  /* ── flip cards ───────────────────────────── */
+  .flip { background: var(--panel); border: 1px solid var(--line2); border-radius: 13px; padding: 14px 16px; margin-bottom: 10px; }
+  .flip .head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .flip .head code { font-family: var(--mono); font-size: 12.5px; color: var(--txt); font-weight: 600; }
+  .ba { display: grid; grid-template-columns: 1fr 22px 1fr; gap: 10px; align-items: center; }
+  @media (max-width: 620px) { .ba { grid-template-columns: 1fr; } .ba .arrow { transform: rotate(90deg); } }
+  .ba .side { background: var(--elev); border: 1px solid var(--line2); border-radius: 9px; padding: 9px 11px; }
+  .ba .side .cap { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--mut2); margin-bottom: 5px; }
+  .ba .side .txt { font-size: 12.5px; color: var(--mut); line-height: 1.45; word-break: break-word; }
+  .ba .side.a { border-left: 3px solid var(--green); }
+  .ba .side.b { border-left: 3px solid var(--red); }
+  .ba .arrow { text-align: center; color: var(--mut2); font-size: 16px; }
+
+  .foot { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line2);
+          display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+          color: var(--mut2); font-size: 12px; }
+  .foot .brandline { display: flex; align-items: center; gap: 7px; }
+  .foot .dot { width: 16px; height: 16px; border-radius: 5px; background: linear-gradient(135deg, var(--acc), var(--acc2)); }
+</style>
+</head>
+<body><div class="wrap">
+
+  
+  
+  
+  
+  
+
+  <div class="brand">
+    <div class="mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#0b1020" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 20V6a2 2 0 0 1 2-2h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M9 13l2 2 4-4"/>
+      </svg>
+    </div>
+    <div>
+      <div class="name">llm-<span>gate</span></div>
+      <div class="tag">CI gate for LLM quality</div>
+    </div>
+  </div>
+
+  <h1>demo-support-rag</h1>
+  <div class="meta">
+    <span class="chip">run <code>f6b54142ecd0</code></span>
+    <span class="chip">2026-09-29T17:51:46+00:00</span>
+    
+    
+  </div>
+
+  
+
+  <div class="hero">
+    <div class="panel ring-panel">
+      <div class="ring-wrap">
+        <svg viewBox="0 0 150 150">
+          <circle class="ring-bg" cx="75" cy="75" r="65"/>
+          <circle class="ring-fg" cx="75" cy="75" r="65"
+                  stroke="#34d399"
+                  stroke-dasharray="408.4"
+                  stroke-dashoffset="0.0"/>
+        </svg>
+        <div class="ring-center">
+          <div>
+            <div class="pct" style="color:#34d399">100%</div>
+            <div class="lbl">pass rate</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="stats">
+        <div class="stat"><div class="k">examples</div><div class="v">10</div></div>
+        <div class="stat"><div class="k">eval cost</div><div class="v mono">$0.0000</div></div>
+        <div class="stat"><div class="k">tokens</div><div class="v mono">0</div></div>
+        <div class="stat"><div class="k">avg latency</div><div class="v">1 <small>ms</small></div></div>
+      </div>
+
+      
+      <div class="mgrid" style="margin-top:12px">
+        
+        <div class="mcard">
+          <div class="mk">f1</div>
+          <div class="mv">0.656</div>
+          <div class="bar"><i style="width:65.6%"></i></div>
+        </div>
+        
+        <div class="mcard">
+          <div class="mk">context_recall</div>
+          <div class="mv">1.000</div>
+          <div class="bar"><i style="width:100.0%"></i></div>
+        </div>
+        
+      </div>
+      
+    </div>
+  </div>
+
+  
+
+  <h2>Per-example results</h2>
+  <table>
+    <thead><tr><th>id</th><th>status</th><th>scores</th><th>latency</th><th>output</th></tr></thead>
+    <tbody>
+    
+    <tr>
+      <td><code>q-refund-condition</code></td>
+      <td><span class="pill pass">PASS</span></td>
+      <td><div class="scores"><span class="sc">f1 <b>0.67</b></span><span class="sc">context_recall <b>1.00</b></span></div></td>
+      <td class="num" style="color:var(--mut)">1 ms</td>
+      <td class="out" title="Items must be unopened and include original packaging. Refunds are issued within 30 days of purchase.">Items must be unopened and include original packaging. Refunds are issued within 30 days of purchase.</td>
+    </tr>
+    
+    <tr>
+      <td><code>q-refund-how</code></td>
+      <td><span class="pill pass">PASS</span></td>
+      <td><div class="scores"><span class="sc">f1 <b>0.67</b></span><span class="sc">context_recall <b>1.00</b></span></div></td>
+      <td class="num" style="color:var(--mut)">0 ms</td>
+      <td class="out" title="Refund requests are submitted through the account dashboard. Refunds are issued within 30 days of purchase.">Refund requests are submitted through the account dashboard. Refunds are issued within 30 days of purchase.</td>
+    </tr>
+    
+    <tr>
+      <td><code>q-refund-window</code></td>
+      <td><span class="pill pass">PASS</span></td>
+      <td><div class="scores"><span class="sc">f1 <b>0.67</b></span><span class="sc">context_recall <b>1.00</b></span></div></td>
+      <td class="num" style="color:var(--mut)">1 ms</td>
+      <td class="out" title="Refund requests are submitted through the account dashboard. Refunds are issued within 30 days of purchase.">Refund requests are submitted through the account dashboard. Refunds are issued within 30 days of purchase.</td>
+    </tr>
+    
+    <tr>
+      <td><code>q-ship-express</code></td>
+      <td><span class="pill pass">PASS</span></td>
+      <td><div class="scores"><span class="sc">f1 <b>0.67</b></span><span class="sc">context_recall <b>1.00</b></span></div></td>
+      <td class="num" style="color:var(--mut)">1 ms</td>
+      <td class="out" title="Express shipping takes 1 to 2 business days and costs extra. Standard shipping takes 3 to 5 business days within the country.">Express shipping takes 1 to 2 business days and costs extra. Standard shipping takes 3 to 5 business days within the country.</td>
+    </tr>
+    
+    <tr>
+      <td><code>q-ship-intl</code></td>
+      <td><span class="pill pass">PASS</span></td>
+      <td><div class="scores"><span class="sc">f1 <b>0.56</b></span><span class="sc">context_recall <b>1.00</b></span></div></td>
+      <td class="num" style="color:var(--mut)">1 ms</td>
+      <td class="out" title="International shipping is available to 40 countries. Standard shipping takes 3 to 5 business days within the country.">International shipping is available to 40 countries. Standard shipping takes 3 to 5 business days within the country.</td>
+    </tr>
+    
+    <tr>
+      <td><code>q-ship-standard</code></td>
+      <td><span class="pill pass">PASS</span></td>
+      <td><div class="scores"><span class="sc">f1 <b>0.67</b></span><span class="sc">context_recall <b>1.00</b></span></div></td>
+      <td class="num" style="color:var(--mut)">1 ms</td>
+      <td class="out" title="Standard shipping takes 3 to 5 business days within the country. Express shipping takes 1 to 2 business days and costs extra.">Standard shipping takes 3 to 5 business days within the country. Express shipping takes 1 to 2 business days and costs extra.</td>
+    </tr>
+    
+    <tr>
+      <td><code>q-support-email</code></td>
+      <td><span class="pill pass">PASS</span></td>
+      <td><div class="scores"><span class="sc">f1 <b>0.71</b></span><span class="sc">context_recall <b>1.00</b></span></div></td>
+      <td class="num" style="color:var(--mut)">0 ms</td>
+      <td class="out" title="Support is available via email at help@example.com, 24/7. Phone support runs on weekdays from 9am to 6pm.">Support is available via email at help@example.com, 24/7. Phone support runs on weekdays from 9am to 6pm.</td>
+    </tr>
+    
+    <tr>
+      <td><code>q-support-hours</code></td>
+      <td><span class="pill pass">PASS</span></td>
+      <td><div class="scores"><span class="sc">f1 <b>0.62</b></span><span class="sc">context_recall <b>1.00</b></span></div></td>
+      <td class="num" style="color:var(--mut)">0 ms</td>
+      <td class="out" title="Phone support runs on weekdays from 9am to 6pm. Support is available via email at help@example.com, 24/7.">Phone support runs on weekdays from 9am to 6pm. Support is available via email at help@example.com, 24/7.</td>
+    </tr>
+    
+    <tr>
+      <td><code>q-warranty-excluded</code></td>
+      <td><span class="pill pass">PASS</span></td>
+      <td><div class="scores"><span class="sc">f1 <b>0.67</b></span><span class="sc">context_recall <b>1.00</b></span></div></td>
+      <td class="num" style="color:var(--mut)">1 ms</td>
+      <td class="out" title="The warranty does not cover water damage or accidental drops. All hardware carries a 2 year warranty covering manufacturing defects.">The warranty does not cover water damage or accidental drops. All hardware carries a 2 year warranty covering manufacturing defects.</td>
+    </tr>
+    
+    <tr>
+      <td><code>q-warranty-length</code></td>
+      <td><span class="pill pass">PASS</span></td>
+      <td><div class="scores"><span class="sc">f1 <b>0.67</b></span><span class="sc">context_recall <b>1.00</b></span></div></td>
+      <td class="num" style="color:var(--mut)">1 ms</td>
+      <td class="out" title="All hardware carries a 2 year warranty covering manufacturing defects. The warranty does not cover water damage or accidental drops.">All hardware carries a 2 year warranty covering manufacturing defects. The warranty does not cover water damage or accidental drops.</td>
+    </tr>
+    
+    </tbody>
+  </table>
+
+  <div class="foot">
+    <div class="brandline"><div class="dot"></div><span>generated by <b style="color:var(--mut)">llm-gate</b></span></div>
+    <div>run <code style="font-family:var(--mono);color:var(--mut2)">f6b54142ecd0</code> · 2026-09-29T17:51:46+00:00</div>
+  </div>
+</div></body>
+</html>

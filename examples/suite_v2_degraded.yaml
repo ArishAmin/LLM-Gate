@@ -1,0 +1,24 @@
+# Same suite name and dataset as suite.yaml — only the target changed.
+# This simulates the "v2 refactor" that quietly broke retrieval:
+#   llm-gate run examples/suite.yaml            -> run A
+#   llm-gate run examples/suite_v2_degraded.yaml -> run B
+#   llm-gate diff <A> <B> --fail-on-regression --report diff.html
+name: demo-support-rag
+
+dataset:
+  path: data/sample.jsonl
+
+target:
+  callable: demo_target:answer_v2_degraded
+
+metrics:
+  - name: f1
+    threshold: 0.25
+  - name: context_recall
+    threshold: 0.5
+
+judge:
+  model: openai/gpt-4o-mini
+  temperature: 0.0
+  samples: 3
+  seed: 42

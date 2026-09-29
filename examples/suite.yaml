@@ -1,0 +1,23 @@
+# llm-gate suite — offline demo (no API keys needed).
+# Run with:  llm-gate run examples/suite.yaml
+name: demo-support-rag
+
+dataset:
+  path: data/sample.jsonl
+
+target:
+  callable: demo_target:answer   # module:function, resolved relative to this file
+
+metrics:
+  - name: f1
+    threshold: 0.25              # example passes when every metric >= its threshold
+  - name: context_recall
+    threshold: 0.5
+  # This suite is deterministic-only: runs offline, no API key, used by tests
+  # and the zero-setup quickstart. For LLM-judge metrics see suite_judge.yaml.
+
+judge:
+  model: groq/llama-3.3-70b-versatile   # used only if you add judge metrics above
+  temperature: 0.0
+  samples: 2
+  seed: 42

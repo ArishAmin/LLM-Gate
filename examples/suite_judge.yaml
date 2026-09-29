@@ -1,0 +1,33 @@
+# llm-gate suite — WITH LLM-as-judge metrics (needs an API key).
+#
+# Setup:
+#   1. pip install -e ".[judge]"        # installs litellm
+#   2. cp .env.example .env             # then put your real GROQ_API_KEY in .env
+#   3. python scripts/judge_smoke.py    # verify the judge path works ($0.00)
+#   4. llm-gate run examples/suite_judge.yaml --notes "with judge"
+#
+# Judge: Groq free tier (openai/gpt-oss-120b). Swap judge.model for any
+# litellm-supported provider, e.g. openai/gpt-4o-mini or gemini/gemini-2.0-flash.
+name: demo-support-rag
+
+dataset:
+  path: data/sample.jsonl
+
+target:
+  callable: demo_target:answer
+
+metrics:
+  - name: f1
+    threshold: 0.25
+  - name: context_recall
+    threshold: 0.5
+  - name: faithfulness
+    threshold: 0.5
+  - name: answer_relevance
+    threshold: 0.5
+
+judge:
+  model: groq/openai/gpt-oss-120b
+  temperature: 0.0
+  samples: 2                     # judge 2x per example; mean score, variance visible
+  seed: 42

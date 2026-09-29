@@ -1,0 +1,28 @@
+# Judge-enabled counterpart of suite_v2_degraded.yaml — same suite name so
+# `llm-gate diff` accepts the pair. Run both judge suites, then diff:
+#   llm-gate run examples/suite_judge.yaml             -> run A
+#   llm-gate run examples/suite_judge_v2_degraded.yaml  -> run B
+#   llm-gate diff <A> <B> --report diff_judge.html --fail-on-regression
+name: demo-support-rag
+
+dataset:
+  path: data/sample.jsonl
+
+target:
+  callable: demo_target:answer_v2_degraded
+
+metrics:
+  - name: f1
+    threshold: 0.25
+  - name: context_recall
+    threshold: 0.5
+  - name: faithfulness
+    threshold: 0.5
+  - name: answer_relevance
+    threshold: 0.5
+
+judge:
+  model: groq/openai/gpt-oss-120b
+  temperature: 0.0
+  samples: 2
+  seed: 42
